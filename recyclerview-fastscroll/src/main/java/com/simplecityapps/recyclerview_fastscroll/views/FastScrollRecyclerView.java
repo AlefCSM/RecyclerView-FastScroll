@@ -185,7 +185,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
      * AvailableScrollBarHeight = Total height of the visible view - thumb height
      */
     protected int getAvailableScrollBarHeight() {
-        int visibleHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+        int visibleHeight = getHeight();
         return visibleHeight - mScrollbar.getThumbHeight();
     }
 
@@ -230,7 +230,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
         // Calculate the current scroll position, the scrollY of the recycler view accounts for the
         // view padding, while the scrollBarY is drawn right up to the background padding (ignoring
         // padding)
-        int scrollY = Math.min(availableScrollHeight, getPaddingTop() + scrolledPastHeight);
+        int scrollY = Math.min(availableScrollHeight, getPaddingTop() + scrolledPastHeight - scrollPosState.rowTopOffset);
 
         int scrollBarY = (int) (((float) scrollY / availableScrollHeight) * availableScrollBarHeight);
         if (isLayoutManagerReversed()) {
@@ -283,7 +283,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
             scrollOffset = calculateScrollDistanceToPosition(scrollPosition) - passedHeight;
         } else {
             itemPos = findItemPosition(touchFraction);
-            availableScrollHeight = getAvailableScrollHeight(rowCount * mScrollPosState.rowHeight, 0);
+            availableScrollHeight = getAvailableScrollHeight(calculateAdapterHeight(), 0);
 
             //The exact position of our desired item
             int exactItemPos = (int) (availableScrollHeight * touchFraction);
@@ -311,10 +311,10 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
     @SuppressWarnings("unchecked")
     private int findMeasureAdapterFirstVisiblePosition(int passedHeight) {
         if (getAdapter() instanceof MeasurableAdapter) {
-            MeasurableAdapter measurableAdapter = (MeasurableAdapter) getAdapter();
+            MeasurableAdapter measurer = (MeasurableAdapter) getAdapter();
             for (int i = 0; i < getAdapter().getItemCount(); i++) {
                 int top = calculateScrollDistanceToPosition(i);
-                int bottom = top + measurableAdapter.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), getAdapter().getItemViewType(i), i);
+                int bottom = top + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), getAdapter().getItemViewType(i), i);
                 if (i == getAdapter().getItemCount() - 1) {
                     if (passedHeight >= top && passedHeight <= bottom) {
                         return i;
@@ -328,8 +328,9 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
             int low = calculateScrollDistanceToPosition(0);
             int index = getAdapter().getItemCount() - 1;
             int height = calculateScrollDistanceToPosition(index)
-                    + measurableAdapter.getViewTypeHeight(this, findViewHolderForAdapterPosition(index), getAdapter().getItemViewType(index), index);
-            throw new IllegalStateException(String.format("Invalid passed height: %d, [low: %d, height: %d]", passedHeight, low, height));
+                    + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(index), getAdapter().getItemViewType(index), index);
+            ;
+            throw new IllegalStateException(String.format("Invalid passed height:%d,[low:%d,height:%d]", passedHeight, low, height));
         } else {
             throw new IllegalStateException("findMeasureAdapterFirstVisiblePosition() should only be called where the RecyclerView.Adapter is an instance of MeasurableAdapter");
         }
@@ -426,7 +427,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
         }
         if (getAdapter() instanceof MeasurableAdapter) {
             stateOut.rowTopOffset = getLayoutManager().getDecoratedTop(child);
-            stateOut.rowHeight = ((MeasurableAdapter) getAdapter()).getViewTypeHeight(this, findViewHolderForAdapterPosition(stateOut.rowIndex), getAdapter().getItemViewType(stateOut.rowIndex),stateOut.rowIndex);
+            stateOut.rowHeight = ((MeasurableAdapter) getAdapter()).getViewTypeHeight(this, findViewHolderForAdapterPosition(stateOut.rowIndex), getAdapter().getItemViewType(stateOut.rowIndex), stateOut.rowIndex);
         } else {
             stateOut.rowTopOffset = getLayoutManager().getDecoratedTop(child);
             stateOut.rowHeight = child.getHeight() + getLayoutManager().getTopDecorationHeight(child)
