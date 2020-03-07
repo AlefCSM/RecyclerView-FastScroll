@@ -308,7 +308,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
             MeasurableAdapter measurer = (MeasurableAdapter) getAdapter();
             for (int i = 0; i < getAdapter().getItemCount(); i++) {
                 int top = calculateScrollDistanceToPosition(i);
-                int bottom = top + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), getAdapter().getItemViewType(i));
+                int bottom = top + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), getAdapter().getItemViewType(i), i);
                 if (i == getAdapter().getItemCount() - 1) {
                     if (passedHeight >= top && passedHeight <= bottom) {
                         return i;
@@ -320,8 +320,9 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
                 }
             }
             int low = calculateScrollDistanceToPosition(0);
-            int height = calculateScrollDistanceToPosition(getAdapter().getItemCount() - 1)
-                    + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(getAdapter().getItemCount() - 1), getAdapter().getItemViewType(getAdapter().getItemCount() - 1));
+            int index = getAdapter().getItemCount() - 1;
+            int height = calculateScrollDistanceToPosition(index)
+                    + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(index), getAdapter().getItemViewType(index), index);
             ;
             throw new IllegalStateException(String.format("Invalid passed height:%d,[low:%d,height:%d]", passedHeight, low, height));
         } else {
@@ -339,7 +340,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
 
             for (int i = 0; i < getAdapter().getItemCount(); i++) {
                 int top = calculateScrollDistanceToPosition(i);
-                int bottom = top + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), getAdapter().getItemViewType(i));
+                int bottom = top + measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), getAdapter().getItemViewType(i), i);
                 if (i == getAdapter().getItemCount() - 1) {
                     if (viewTop >= top && viewTop <= bottom) {
                         return i;
@@ -413,7 +414,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
         }
         if (getAdapter() instanceof MeasurableAdapter) {
             stateOut.rowTopOffset = getLayoutManager().getDecoratedTop(child);
-            stateOut.rowHeight = ((MeasurableAdapter) getAdapter()).getViewTypeHeight(this, findViewHolderForAdapterPosition(stateOut.rowIndex), getAdapter().getItemViewType(stateOut.rowIndex));
+            stateOut.rowHeight = ((MeasurableAdapter) getAdapter()).getViewTypeHeight(this, findViewHolderForAdapterPosition(stateOut.rowIndex), getAdapter().getItemViewType(stateOut.rowIndex), stateOut.rowIndex);
         } else {
             stateOut.rowTopOffset = getLayoutManager().getDecoratedTop(child);
             stateOut.rowHeight = child.getHeight() + getLayoutManager().getTopDecorationHeight(child)
@@ -447,7 +448,7 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
         for (int i = 0; i < adapterIndex; i++) {
             mScrollOffsets.put(i, totalHeight);
             int viewType = getAdapter().getItemViewType(i);
-            totalHeight += measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), viewType);
+            totalHeight += measurer.getViewTypeHeight(this, findViewHolderForAdapterPosition(i), viewType, i);
         }
 
         mScrollOffsets.put(adapterIndex, totalHeight);
@@ -599,6 +600,6 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
          * @param viewType     The view type to get the height of
          * @return The height of a single view for the given view type in pixels
          */
-        int getViewTypeHeight(RecyclerView recyclerView, @Nullable VH viewHolder, int viewType);
+        int getViewTypeHeight(RecyclerView recyclerView, @Nullable VH viewHolder, int viewType, int position);
     }
 }
