@@ -20,17 +20,18 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.simplecityapps.recyclerview_fastscroll.R;
 import com.simplecityapps.recyclerview_fastscroll.interfaces.OnFastScrollStateChangeListener;
@@ -389,6 +390,13 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
         updateThumbPosition(mScrollPosState, rowCount);
     }
 
+    protected boolean isLayoutManagerReversed() {
+        if (getLayoutManager() instanceof LinearLayoutManager) {
+            return ((LinearLayoutManager) getLayoutManager()).getReverseLayout();
+        }
+        return false;
+    }
+
     /**
      * Returns the current scroll state of the apps rows.
      */
@@ -535,11 +543,11 @@ public class FastScrollRecyclerView extends RecyclerView implements RecyclerView
     }
 
     /**
-     * Set the FastScroll Popup position. This is either {@link FastScroller.FastScrollerPopupPosition#ADJACENT},
-     * meaning the popup moves adjacent to the FastScroll thumb, or {@link FastScroller.FastScrollerPopupPosition#CENTER},
+     * Set the FastScroll Popup position. This is either {@link FastScroller.PopupPosition#ADJACENT},
+     * meaning the popup moves adjacent to the FastScroll thumb, or {@link FastScroller.PopupPosition#CENTER},
      * meaning the popup is static and centered within the RecyclerView.
      */
-    public void setPopupPosition(@FastScroller.FastScrollerPopupPosition int popupPosition) {
+    public void setPopupPosition(@FastScroller.PopupPosition int popupPosition) {
         mScrollbar.setPopupPosition(popupPosition);
     }
 
