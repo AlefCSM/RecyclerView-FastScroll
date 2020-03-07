@@ -53,7 +53,7 @@ public class MultiViewTypeAdapter extends RecyclerView.Adapter<MultiViewTypeAdap
 
     @Override
     public int getViewTypeHeight(RecyclerView recyclerView,
-                                 @Nullable RecyclerView.ViewHolder viewHolder, int viewType) {
+                                 @Nullable RecyclerView.ViewHolder viewHolder, int viewType, int position) {
         if (viewType == R.layout.list_item_header) {
             return recyclerView.getResources().getDimensionPixelSize(R.dimen.list_item_header_height);
         } else if (viewType == R.layout.list_item) {
